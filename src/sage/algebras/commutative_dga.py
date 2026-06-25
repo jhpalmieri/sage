@@ -3012,6 +3012,16 @@ class DifferentialGCAlgebra(GCAlgebra):
                x0 --> 0
                x1 --> 0
                x2 --> 0
+
+        Check that this works in the mulitgraded setting::
+
+            sage: C.<h0,h1,v1> = GradedCommutativeAlgebra(GF(2), degrees=((1,0),(1,0),(0,1)))
+            sage: D = C.cdg_algebra({v1: h0*h1})
+            sage: D.cohomology_algebra(4)
+            Commutative Differential Graded Algebra with generators ('x0', 'x1', 'x2') in degrees ((1,0), (1,0), (0,2)) with relations [x0*x1] over Finite Field of size 2 with differential:
+               x0 --> 0
+               x1 --> 0
+               x2 --> 0
         """
         cohomgens = self.cohomology_generators(max_degree)
         if not cohomgens:
@@ -3020,7 +3030,7 @@ class DifferentialGCAlgebra(GCAlgebra):
         degrees = []
         for d in cohomgens:
             for g in cohomgens[d]:
-                degrees.append(d)
+                degrees.append(g.degree())
                 chgens.append(g)
         A = GradedCommutativeAlgebra(self.base_ring(),
                                      [f'x{i}' for i in range(len(chgens))],
@@ -3035,7 +3045,7 @@ class DifferentialGCAlgebra(GCAlgebra):
                 if ig.is_zero():
                     images.append(V2.zero())
                 else:
-                    images.append(V2(V2.V()(ig.basis_coefficients())))
+                    images.append(V2(V2.V()(ig.basis_coefficients(True))))
             V1 = self.base_ring()**len(B1)
             h = V1.hom(images, codomain=V2)
             K = h.kernel()
